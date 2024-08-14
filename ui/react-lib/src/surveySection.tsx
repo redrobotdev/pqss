@@ -2,6 +2,8 @@ import { Button } from "@/components/ui/button"
 import { questions } from "./questions"
 import { useSurvey } from "./useSurvey"
 
+// how to programically define questions
+
 export default function SurveySection() {
   const {
     component,
