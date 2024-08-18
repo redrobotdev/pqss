@@ -1,9 +1,9 @@
 import {
-  BooleanResponseFormat,
-  EmptyResponseFormat,
+  BooleanAttributes,
+  EmptyAttributes,
   Exchange,
-  MultiSelectResponseFormat,
-  TextboxResponseFormat,
+  MultiSelectAttribute,
+  TextInputAttributes,
 } from "../types"
 
 import { SurveyExchange } from "../SurveyExchange"
@@ -207,7 +207,7 @@ import { SurveyExchange } from "../SurveyExchange"
 // }
 
 function createSimpleSurvey() {
-  const start: Exchange<EmptyResponseFormat> = {
+  const start: Exchange<EmptyAttributes> = {
     id: "start",
     label: "start",
     prompt: {
@@ -216,7 +216,7 @@ function createSimpleSurvey() {
     },
   }
 
-  const a: Exchange<MultiSelectResponseFormat> = {
+  const a: Exchange<MultiSelectAttribute> = {
     id: "a",
     label: "A",
     prompt: {
@@ -239,7 +239,7 @@ function createSimpleSurvey() {
     },
   }
 
-  const b: Exchange<MultiSelectResponseFormat> = {
+  const b: Exchange<MultiSelectAttribute> = {
     id: "b",
     label: "B",
     prompt: {
@@ -262,7 +262,7 @@ function createSimpleSurvey() {
     },
   }
 
-  const c: Exchange<BooleanResponseFormat> = {
+  const c: Exchange<BooleanAttributes> = {
     id: "c",
     label: "C",
     prompt: {
@@ -270,7 +270,7 @@ function createSimpleSurvey() {
     },
   }
 
-  const d: Exchange<TextboxResponseFormat> = {
+  const d: Exchange<TextInputAttributes> = {
     id: "d",
     label: "D",
     prompt: {
@@ -283,7 +283,7 @@ function createSimpleSurvey() {
     },
   }
 
-  const e: Exchange<BooleanResponseFormat> = {
+  const e: Exchange<BooleanAttributes> = {
     id: "e",
     label: "E",
     prompt: {
@@ -294,7 +294,7 @@ function createSimpleSurvey() {
     },
   }
 
-  const f: Exchange<TextboxResponseFormat> = {
+  const f: Exchange<TextInputAttributes> = {
     id: "f",
     label: "F",
     prompt: {
@@ -302,7 +302,7 @@ function createSimpleSurvey() {
     },
   }
 
-  const g: Exchange<TextboxResponseFormat> = {
+  const g: Exchange<TextInputAttributes> = {
     id: "g",
     label: "G",
     prompt: {
@@ -311,7 +311,7 @@ function createSimpleSurvey() {
     },
   }
 
-  const h: Exchange<MultiSelectResponseFormat> = {
+  const h: Exchange<MultiSelectAttribute> = {
     id: "h",
     label: "H",
     prompt: {
@@ -350,7 +350,7 @@ function createSimpleSurvey() {
     },
   }
 
-  const i: Exchange<TextboxResponseFormat> = {
+  const i: Exchange<TextInputAttributes> = {
     id: "i",
     label: "I",
     prompt: {
@@ -358,7 +358,7 @@ function createSimpleSurvey() {
     },
   }
 
-  const j: Exchange<EmptyResponseFormat> = {
+  const j: Exchange<EmptyAttributes> = {
     id: "j",
     label: "J",
     prompt: {
@@ -366,7 +366,7 @@ function createSimpleSurvey() {
     },
   }
 
-  const k: Exchange<BooleanResponseFormat> = {
+  const k: Exchange<BooleanAttributes> = {
     id: "k",
     label: "K",
     prompt: {
@@ -377,7 +377,7 @@ function createSimpleSurvey() {
     },
   }
 
-  const l: Exchange<EmptyResponseFormat> = {
+  const l: Exchange<EmptyAttributes> = {
     id: "l",
     label: "L",
     prompt: {
@@ -386,7 +386,7 @@ function createSimpleSurvey() {
     },
   }
 
-  const end: Exchange<EmptyResponseFormat> = {
+  const end: Exchange<EmptyAttributes> = {
     id: "end",
     label: "end",
     prompt: {
@@ -402,7 +402,7 @@ function createSimpleSurvey() {
   )
 
   survey.addEdge(start, a)
-  survey.addEdge(a, b, (i, c) => {
+  survey.addEdge(a, b, (i) => {
     if (!i.response) {
       return false
     }
@@ -415,11 +415,11 @@ function createSimpleSurvey() {
     return true
   })
 
-  survey.addEdge(a, c, (i, c) => {
+  survey.addEdge(a, c, () => {
     return true
   })
 
-  survey.addEdge(a, d, (i, c) => {
+  survey.addEdge(a, d, () => {
     return false
   })
 
@@ -433,6 +433,25 @@ function createSimpleSurvey() {
   survey.addEdge(j, k)
   survey.addEdge(k, end)
 
+  if (a.responseAttributes) {
+    survey.addResponse(a, {
+      options: [a.responseAttributes.options[1]],
+    })
+  }
+
+  if (b.responseAttributes) {
+    survey.addResponse(b, {
+      options: [
+        b.responseAttributes.options[0],
+        b.responseAttributes.options[1],
+      ],
+    })
+  }
+
+  if (c.responseAttributes) {
+    survey.addResponse(c, { value: true, undecided: false })
+  }
+
   return survey
 }
 
@@ -445,9 +464,7 @@ function test() {
       break
     }
 
-    console.log(x.prompt.title)
-    // console.log(JSON.stringify(x, null, 2))
-    // x.getInput()
+    console.log(JSON.stringify(x, null, 2))
   }
   console.log("finished survey")
 }

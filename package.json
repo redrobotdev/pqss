@@ -29,5 +29,6 @@
     "core",
     "test",
     "ui/**/*"
-  ]
+  ],
+  "devDependencies": {}
 }

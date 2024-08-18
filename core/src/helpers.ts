@@ -1,24 +1,19 @@
 import {
   BooleanResponse,
-  BooleanResponseFormat,
-  Exchange,
-  ExchangeInput,
-  MultiSelectResponseFormat,
-  MultiSelectResponseOptionInput,
+  BooleanAttributes,
+  MultiSelectAttribute,
+  MultiSelectAttributeInput,
   Prompt,
-  ResponseBase,
-  ResponseFormatBase,
+  ResponseAttributeBase,
 } from "./types"
-
-let counter = 0
 
 export function createPrompt(prompt: Prompt): Prompt {
   return prompt
 }
 
 export function createMultiSelectPrompt<T>(
-  options: Array<MultiSelectResponseOptionInput>
-): MultiSelectResponseFormat {
+  options: Array<MultiSelectAttributeInput>
+): MultiSelectAttribute {
   const newOptions = options.map((item, index) => {
     return {
       id: `${index}`,
@@ -32,14 +27,14 @@ export function createMultiSelectPrompt<T>(
 }
 
 export function isMultiSelectPrompt(
-  input: ResponseFormatBase
-): input is MultiSelectResponseFormat {
-  return (input as MultiSelectResponseFormat).options !== undefined
+  input: ResponseAttributeBase
+): input is MultiSelectAttribute {
+  return (input as MultiSelectAttribute).options !== undefined
 }
 
 export function createMultiSelectResponse(
-  options: Array<MultiSelectResponseOptionInput>
-): MultiSelectResponseFormat {
+  options: Array<MultiSelectAttributeInput>
+): MultiSelectAttribute {
   const newOptions = options.map((item, index) => {
     return {
       id: `${index}`,
@@ -53,9 +48,9 @@ export function createMultiSelectResponse(
 }
 
 export function isBooleanPrompt(
-  input: ResponseFormatBase
-): input is BooleanResponseFormat {
-  return (input as BooleanResponseFormat).shouldHaveUndecided !== undefined
+  input: ResponseAttributeBase
+): input is BooleanAttributes {
+  return (input as BooleanAttributes).shouldHaveUndecided !== undefined
 }
 
 export function createBooleanResponse(
