@@ -1,0 +1,27 @@
+{
+  "name": "@pqss/terminal",
+  "version": "1.0.0",
+  "description": "PQSS Terminal",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "ts-node src/index.ts",
+    "test": "ts-node src/test.ts",
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "lint": "eslint ./src"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "inquirer": "^10.1.8",
+    "@pqss/core": "1.0.0"
+  },
+  "devDependencies": {
+    "@types/inquirer": "^9.0.7",
+    "typescript": "^5.5.4"
+  }
+}

@@ -15,6 +15,11 @@ The goal is to have a fully compliant Typescript API, that you can create genera
 
 1. React based UI to collect responses
 2. Refactor code, separate out responses to a different collection
+3. Create separate UI system to show the flow diagram
+4. create survey flow using UI diagram
+
+## Future
+
 3. Vue based UI to collect responses
 4. Angular based UI to collect responses
 5. svelte based UI to collect response

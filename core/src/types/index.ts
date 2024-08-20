@@ -37,6 +37,8 @@ export type MultiSelectAttributeOption = {
   id: string
   label: string
   value: string
+  disabled?: boolean
+  description?: string
 }
 
 export type MultiSelectAttribute = ResponseAttributeBase & {
