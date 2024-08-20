@@ -212,7 +212,9 @@ async function RunPrompts() {
     }
   }
 
-  console.log(JSON.stringify(survey.exchanges, null, 2))
+  const responses = Object.values(survey.exchanges).map((x) => x.response)
+  console.log(JSON.stringify(responses, null, 2))
+  // console.log(JSON.stringify(survey.exchanges, null, 2))
 }
 
 RunPrompts()
