@@ -1,89 +1,79 @@
+import { v4 as uuidv4 } from "uuid"
+
 import {
-  BooleanResponse,
-  BooleanAttributes,
-  MultiSelectAttribute,
-  MultiSelectAttributeInput,
+  // BooleanResponse,
+  // BooleanAttribute,
+  // MultiSelectAttribute,
   Prompt,
-  ResponseAttributeBase,
+  // ResponseAttributeBase,
+  ExchangeInput,
+  Exchange,
+  ResponseAttributes,
 } from "./types"
 
 export function createPrompt(prompt: Prompt): Prompt {
   return prompt
 }
 
-export function createMultiSelectPrompt<T>(
-  options: Array<MultiSelectAttributeInput>
-): MultiSelectAttribute {
-  const newOptions = options.map((item, index) => {
-    return {
-      id: `${index}`,
-      ...item,
-    }
-  })
+// export function createMultiSelectPrompt<T>(
+//   options: Array<MultiSelectAttribute>
+// ): MultiSelectAttribute {
+//   const newOptions = options.map((item, index) => {
+//     return {
+//       id: `${index}`,
+//       ...item,
+//     }
+//   })
 
-  return {
-    options: newOptions,
-  }
-}
-
-export function isMultiSelectPrompt(
-  input: ResponseAttributeBase
-): input is MultiSelectAttribute {
-  return (input as MultiSelectAttribute).options !== undefined
-}
-
-export function createMultiSelectResponse(
-  options: Array<MultiSelectAttributeInput>
-): MultiSelectAttribute {
-  const newOptions = options.map((item, index) => {
-    return {
-      id: `${index}`,
-      ...item,
-    }
-  })
-
-  return {
-    options: newOptions,
-  }
-}
-
-export function isBooleanPrompt(
-  input: ResponseAttributeBase
-): input is BooleanAttributes {
-  return (input as BooleanAttributes).shouldHaveUndecided !== undefined
-}
-
-export function createBooleanResponse(
-  value: boolean,
-  undecided?: boolean
-): BooleanResponse {
-  return {
-    value,
-    undecided,
-  }
-}
-
-// export function createExchange<T extends ExchangeInput>({
-//   label,
-//   prompt,
-//   responseFormat,
-// }: T): Exchange<T> {
-//   counter += 1
-//   let response: ResponseBase = {}
-
-//   if (isMultiSelectPrompt(responseFormat)) {
-//     response = createMultiSelectResponse([])
-//   } else if (isBooleanPrompt(responseFormat)) {
-//     response = createBooleanResponse(true, false)
+//   return {
+//     options: newOptions,
 //   }
-
-//   let rtnValue: Exchange<T> = {
-//     id: `${counter}`,
-//     label,
-//     prompt,
-//     responseFormat,
-//     response,
-//   }
-
-//   return rtnValue
 // }
+
+// export function isMultiSelectPrompt(
+//   input: ResponseAttributeBase
+// ): input is MultiSelectAttribute {
+//   return (input as MultiSelectAttribute).options !== undefined
+// }
+
+// export function createMultiSelectResponse(
+//   options: Array<MultiSelectAttributeInput>
+// ): MultiSelectAttribute {
+//   const newOptions = options.map((item, index) => {
+//     return {
+//       id: `${index}`,
+//       ...item,
+//     }
+//   })
+
+//   return {
+//     options: newOptions,
+//   }
+// }
+
+// export function isBooleanPrompt(
+//   input: ResponseAttributeBase
+// ): input is BooleanAttribute {
+//   return (input as BooleanAttribute).shouldHaveUndecided !== undefined
+// }
+
+// export function createBooleanResponse(
+//   value: boolean,
+//   undecided?: boolean
+// ): BooleanResponse {
+//   return {
+//     value,
+//     undecided,
+//   }
+// }
+
+// -------
+export function createExchange<T extends ResponseAttributes>(
+  input: ExchangeInput<T>
+): Exchange<T> {
+  return {
+    id: uuidv4(),
+    ...input,
+    response: null,
+  }
+}

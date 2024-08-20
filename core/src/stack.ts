@@ -13,6 +13,10 @@ export class Stack<T> {
     return this.items[this.items.length - 1]
   }
 
+  find(item: T): T | undefined {
+    return this.items.find((a) => a === item)
+  }
+
   isEmpty(): boolean {
     return this.items.length === 0
   }

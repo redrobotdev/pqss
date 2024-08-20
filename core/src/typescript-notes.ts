@@ -321,4 +321,128 @@ testOmitFunc("")
 
 
 const testObj: Record<string, string[]> = {};
-testObj.foo.push("a")
+// testObj.foo.push("a")
+
+
+
+const tuple = ['tesla', 'model 3', 'model X', 'model Y'] as const
+
+type TupleToObject<T extends readonly (number | string | symbol)[]> = {
+  [K in T[number]]: K
+}
+
+type TupleToObject2<T extends readonly string[]> =
+   T[number]
+
+
+type B = TupleToObject<typeof tuple>
+// console.log(B)
+
+type C = TupleToObject2<typeof tuple>
+
+type GetParameters<T extends (...args: any[]) => any> = T extends (...args: infer P) => any ? P : never;
+const getPerson = (name: string, age: number) => { 
+  return {name, age}
+};
+function add(a: number, b: number): number {
+  return a + b;
+}
+type PV = GetParameters<typeof getPerson>
+
+// type GetUnionTypeFromObj<T> = keyof T
+
+// type MyOmit<T, K> =  K extends GetUnionTypeFromObj<T> ? never : T 
+
+// type OmitKey<T, K> = T extends K ? never : T;
+
+// type MyOmit<T, K extends keyof T> = {
+// 	[P in OmitKey<keyof T,K>]: T[P];
+// };
+
+// interface Todo {
+//   title: string
+//   description: string
+//   completed: boolean
+// }
+
+// type TodoPreview = MyOmit<Todo, 'description' | 'title'>
+
+
+///// Advanced level 
+// create readonly function that you can specify parameter for it to make readonly
+
+// incorrect
+type MyReadonlyIncorrect<T, K> = {
+	[P in keyof T]: P extends K ? Readonly<T[P]> : T[P]
+}
+
+// correct
+type MyReadonly<T, K extends keyof T = keyof T> = 
+	Readonly<Pick<T, K>> & Omit<T, K>
+
+interface Todo {
+  title: string
+  description: string
+  completed: boolean
+}
+
+const todo: MyReadonly<Todo, 'title' | 'description'> = {
+  title: "Hey",
+  description: "foobar",
+  completed: false,
+}
+
+console.log(typeof todo)
+
+// todo.title = ""        // can't do
+// todo.description = ""  // can't do
+todo.completed = false
+
+
+////////// Create Pick
+
+// this extracts the type of the 2nd argument as a union
+type GetKeyTypes<T, K> = K extends keyof T? T[K] : never
+
+// this is string | boolean
+type TodoCustomTypes = GetKeyTypes<Todo, "title" | "completed">
+
+
+type CPick<T extends object, K extends keyof T> = { 
+ [P in K]: T[P]
+}
+
+type NewCPick = CPick<Todo, "title" | "completed">
+
+
+
+ {
+  // type Includes<T extends readonly any[], U> = U extends T[number] ? true : false
+
+  type IfEquals<T, U, Y, N> =
+  (<G>() => G extends T ? 1 : 2) extends
+  (<G>() => G extends U ? 1 : 2) ? Y : N;
+
+  type Includes<T extends unknown[], U> =
+    T extends [infer Head, ...infer Tail] ?
+      IfEquals<Head, U, true, Includes<Tail, U>>
+    : false;
+
+
+  type A = Includes<['Kars', 'Esidisi', 'Wamuu', 'Santana'], 'Kars'>
+  type B = Includes<['Kars', 'Esidisi', 'Wamuu', 'Santana'], 'Dio'>
+  type C = Includes<[{}], { a: 'A' }> // false
+  type D = Includes<[boolean, 2, 3, 5, 6, 7], false> //false
+  type E = Includes<[true, 2, 3, 5, 6, 7], boolean> // false
+// type a = Includes<[false, 2, 3, 5, 6, 7], false>, true>
+// type a = Includes<[{ a: 'A' }], { readonly a: 'A' }>, false>
+// type a = Includes<[{ readonly a: 'A' }], { a: 'A' }>, false>
+// type a = Includes<[1], 1 | 2>, false>
+// type a = Includes<[1 | 2], 1>, false>
+// type a = Includes<[null], undefined>, false>
+// type a = Includes<[undefined], null>, false>
+ }
+
+ {
+  type A = string
+ }

@@ -3,11 +3,13 @@ import {
   ExchangeCondition,
   ResponseTypes,
   ResponseAttributes,
+  ExchangeInput,
+  EmptyAttribute,
 } from "./types"
 import { Stack } from "./stack"
+import { createExchange } from "./helpers"
 
 export class SurveyExchange {
-  // exchanges: { [key: string]: Exchange } = {}
   exchanges: { [key: string]: Exchange } = {}
 
   // first item is id, second is
@@ -16,14 +18,15 @@ export class SurveyExchange {
   // first item is the edge pair id ie ()
   conditions: Map<
     string,
-    ExchangeCondition<ResponseAttributes, ResponseAttributes>
+    ExchangeCondition<ResponseTypes<ResponseAttributes>>
   > = new Map()
 
-  // the starting exchange
+  // the starting and ending exchanges
   startExchange: Exchange
-  traverseStack = new Stack<Exchange>()
+  runStack = new Stack<Exchange>()
+  traversedStack = new Stack<Exchange>()
 
-  constructor(exchanges: Array<Exchange>, startExchange: Exchange) {
+  constructor(exchanges?: Array<Exchange>) {
     if (exchanges) {
       this.exchanges = exchanges.reduce((acc, curr) => {
         acc[curr.id] = curr
@@ -31,16 +34,26 @@ export class SurveyExchange {
       }, {} as { [key: string]: Exchange })
     }
 
-    this.startExchange = startExchange
-    this.traverseStack.push(startExchange)
+    this.startExchange = createExchange<EmptyAttribute>({
+      label: "start",
+    })
+
+    // by default push the start exchange
+    // into the traverse stack
+    this.runStack.push(this.startExchange)
   }
 
-  addExchange(exchange: Exchange): void {
+  addExchange<T extends ResponseAttributes>(
+    exchangeInput: ExchangeInput<T>
+  ): Exchange<T> {
+    const exchange = createExchange(exchangeInput)
+
     if (exchange.id in this.exchanges) {
-      return
+      throw new Error(`${exchange.id} already exists`)
     }
 
     this.exchanges[exchange.id] = exchange
+    return exchange
   }
 
   addExchanges(exchanges: Array<Exchange>): void {
@@ -53,7 +66,21 @@ export class SurveyExchange {
   addEdge<T extends ResponseAttributes, U extends ResponseAttributes>(
     x1: Exchange<T>,
     x2: Exchange<U>,
-    cond?: ExchangeCondition<T, U>
+    cond?: ExchangeCondition<ResponseTypes<T>>
+  ): SurveyExchange {
+    if (this.isFirstEdge()) {
+      this._addEdge(this.startExchange, x1)
+    }
+
+    this._addEdge(x1, x2, cond)
+
+    return this
+  }
+
+  private _addEdge<T extends ResponseAttributes, U extends ResponseAttributes>(
+    x1: Exchange<T>,
+    x2: Exchange<U>,
+    cond?: ExchangeCondition<ResponseTypes<T>>
   ): void {
     let edge1 = this.edges.get(x1.id)
     if (!edge1) {
@@ -64,14 +91,17 @@ export class SurveyExchange {
     // add the edge
     edge1?.push(x2.id)
 
-    // add the condition
-    // this.conditions.set([x1.id, x2.id], cond)
+    // add the condition, if it's set
     if (cond) {
       this.conditions.set(
         `${x1.id}-${x2.id}`,
-        cond as ExchangeCondition<ResponseAttributes, ResponseAttributes>
+        cond as ExchangeCondition<ResponseTypes<ResponseAttributes>>
       )
     }
+  }
+
+  isFirstEdge() {
+    return this.edges.size === 0
   }
 
   getExchange(id: string) {
@@ -88,7 +118,10 @@ export class SurveyExchange {
       return []
     }
 
-    const rtnValue = exchangeList.map((a) => this.exchanges[a])
+    const rtnValue = exchangeList
+      .map((a) => this.exchanges[a])
+      .filter((a) => a !== undefined)
+
     return rtnValue
   }
 
@@ -106,18 +139,22 @@ export class SurveyExchange {
 
   getNextExchange() {
     // get the next item in stack
-    let rtnValue = this.traverseStack.pop()
+    let rtnValue = this.runStack.pop()
 
+    // a while loop to
     while (true) {
       if (!rtnValue) {
         break
       }
 
       const originExchangeId = this.reverseLookup(rtnValue.id)
-      const originExchange = this.getExchange(originExchangeId[0])
+      if (originExchangeId.length < 1 || !(0 in originExchangeId)) {
+        break
+      }
 
+      const originExchange = this.getExchange(originExchangeId[0])
       if (!originExchange) {
-        console.error("no origin exchange found")
+        // console.error("no origin exchange found")
         break
       }
 
@@ -131,11 +168,19 @@ export class SurveyExchange {
         break
       }
 
-      if (!cond(originExchange, [])) {
-        rtnValue = this.traverseStack.pop()
-      } else {
+      if (cond(originExchange.response, this.exchanges)) {
         break
       }
+
+      rtnValue = this.runStack.pop()
+    }
+
+    // if next item has already been traversed then skip
+    while (rtnValue) {
+      if (!this.traversedStack.find(rtnValue)) {
+        break
+      }
+      rtnValue = this.runStack.pop()
     }
 
     // if there are no more items in the stack,
@@ -148,8 +193,11 @@ export class SurveyExchange {
     // inside the stack
     const neighbors = this.getNeighbors(rtnValue)
     for (const n of neighbors.reverse()) {
-      this.traverseStack.push(n)
+      this.runStack.push(n)
     }
+
+    // push exchange into traversed list
+    this.traversedStack.push(rtnValue)
 
     return rtnValue
   }
